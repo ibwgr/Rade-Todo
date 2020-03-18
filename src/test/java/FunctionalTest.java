@@ -1,6 +1,7 @@
 import com.despegar.http.client.GetMethod;
 import com.despegar.http.client.HttpClientException;
 import com.despegar.http.client.HttpResponse;
+import com.despegar.http.client.PostMethod;
 import org.junit.Rule;
 import spark.servlet.SparkApplication;
 
@@ -36,5 +37,19 @@ public class FunctionalTest {
 
   public HttpResponse executeGet(String path) {
     return executeGet(path, "application/json");
+  }
+
+  public HttpResponse executePost(String path, Object body){
+    return executePost(path, body, "application/json");
+  }
+
+  public HttpResponse executePost(String path, Object body, String acceptType) {
+    PostMethod method = httpClient.post(path, new JSONSerializer().serialize(body), false);
+    method.addHeader("Accept", acceptType);
+    try {
+      return httpClient.execute(method);
+    } catch (HttpClientException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
