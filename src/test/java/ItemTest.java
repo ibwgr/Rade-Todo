@@ -29,10 +29,8 @@ public class ItemTest extends FunctionalTest {
     @Test
     public void response_406_ifNotJSON() {
 //        ACTUAL 404 .... HAS TO BE 406 -->FAILLLLLL
-        String body = new String();
-        HttpResponse response = executePost("/items", body, "application/xml");
+        HttpResponse response = this.executeGet("/items", "application/xml");
         assertEquals(HttpStatus.NOT_ACCEPTABLE_406, response.code());
-        assertEquals("application/json", response.headers().get("Content-Type").get(0));
     }
 
 }

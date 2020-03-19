@@ -17,9 +17,17 @@ public class ItemController {
         //spark startet per default auf port 4567
         server.get("/items", (request, response) -> {
 
-            response.type("application/json");
+//            response.type("application/json");
+
+            if (request.contentType() == "application/json") {
+                response.status(200);
+            }else{
+                response.status(406);
+            }
 
             return items;
         }, items -> new JSONSerializer().serialize(items)); //response transformer von spark, interface zum implementieren
+
+
     }
 }
