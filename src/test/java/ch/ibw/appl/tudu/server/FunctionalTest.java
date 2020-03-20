@@ -1,7 +1,7 @@
-import com.despegar.http.client.GetMethod;
-import com.despegar.http.client.HttpClientException;
-import com.despegar.http.client.HttpResponse;
-import com.despegar.http.client.PostMethod;
+package ch.ibw.appl.tudu.server;
+
+import ch.ibw.appl.tudu.server.shared.infra.HttpServer;
+import com.despegar.http.client.*;
 import org.junit.Rule;
 import spark.servlet.SparkApplication;
 
@@ -25,7 +25,7 @@ public class FunctionalTest {
   @Rule
   public SparkServer<TodoApplication> httpClient = new SparkServer<>(TodoApplication.class);
 
-  public HttpResponse executeGet(String path, String acceptType){
+  public HttpResponse executeGet(String path, String acceptType) {
     GetMethod method = httpClient.get(path, false);
     method.addHeader("Accept", acceptType);
     try {
@@ -39,7 +39,7 @@ public class FunctionalTest {
     return executeGet(path, "application/json");
   }
 
-  public HttpResponse executePost(String path, Object body){
+  public HttpResponse executePost(String path, Object body) {
     return executePost(path, body, "application/json");
   }
 
@@ -52,4 +52,19 @@ public class FunctionalTest {
       throw new RuntimeException(e);
     }
   }
+
+  public HttpResponse executeDelete(String path, String acceptType){
+    DeleteMethod method = httpClient.delete(path, false);
+    method.addHeader("Accept", acceptType);
+    try {
+      return httpClient.execute(method);
+    } catch (HttpClientException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public HttpResponse executeDelete(String path) {
+    return executeDelete(path, "application/json");
+  }
+
 }

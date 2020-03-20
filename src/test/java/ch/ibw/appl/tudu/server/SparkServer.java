@@ -1,3 +1,5 @@
+package ch.ibw.appl.tudu.server;
+
 import com.despegar.http.client.DeleteMethod;
 import com.despegar.http.client.GetMethod;
 import com.despegar.http.client.HeadMethod;

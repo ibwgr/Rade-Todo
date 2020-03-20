@@ -1,3 +1,6 @@
+package ch.ibw.appl.tudu.server.shared.infra;
+
+import ch.ibw.appl.tudu.server.ItemController;
 import spark.Service;
 
 public class HttpServer {
@@ -12,6 +15,16 @@ public class HttpServer {
     public void start() {
         server = Service.ignite();
         server.port(Integer.parseInt(httpPort));
+
+        server.before((request, response) -> {
+            if (!request.headers("accept").equalsIgnoreCase("application/json")) {
+                server.halt(406);
+            }
+        });
+
+        server.afterAfter((request, response) -> {
+            response.type("application/json");
+        });
 
         new ItemController().createRoutes(server);
 
