@@ -1,6 +1,7 @@
 package ch.ibw.appl.tudu.server;
 
 import ch.ibw.appl.tudu.server.shared.infra.HttpServer;
+import ch.ibw.appl.tudu.server.shared.infra.JSONSerializer;
 import com.despegar.http.client.*;
 import org.junit.Rule;
 import spark.servlet.SparkApplication;
@@ -12,7 +13,7 @@ public class FunctionalTest {
 
     @Override
     public void init() {
-      httpServer = new HttpServer("4567");
+      httpServer = new HttpServer("4567", true);
       httpServer.start();
     }
 

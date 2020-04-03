@@ -1,15 +1,23 @@
 package ch.ibw.appl.tudu.server.shared.infra;
 
-import ch.ibw.appl.tudu.server.ItemController;
+import ch.ibw.appl.tudu.server.item.infra.ItemController;
+import ch.ibw.appl.tudu.server.shared.model.ValidationError;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import org.eclipse.jetty.http.HttpStatus;
 import spark.Service;
 
-public class HttpServer {
+import java.util.Arrays;
 
+
+public class HttpServer {
     private final String httpPort;
+    private boolean isTest;
     private Service server;
 
-    public HttpServer(String httpPort) {
+    public HttpServer(String httpPort, boolean isTest) {
         this.httpPort = httpPort;
+        this.isTest = isTest;
     }
 
     public void start() {
@@ -17,7 +25,7 @@ public class HttpServer {
         server.port(Integer.parseInt(httpPort));
 
         server.before((request, response) -> {
-            if (!request.headers("accept").equalsIgnoreCase("application/json")) {
+            if(!request.headers("accept").equalsIgnoreCase("application/json")){
                 server.halt(406);
             }
         });
@@ -26,7 +34,21 @@ public class HttpServer {
             response.type("application/json");
         });
 
-        new ItemController().createRoutes(server);
+        server.exception(RuntimeException.class, (exception, request, response) -> {
+            if(exception instanceof ValidationError){
+                String message = exception.getMessage();
+                JsonNode node = JsonNodeFactory.instance.objectNode().set("message", JsonNodeFactory.instance.textNode(message));
+                response.body(node.toString());
+                response.status(HttpStatus.BAD_REQUEST_400);
+            } else {
+                // z.B. im Falle einer NullPointerException
+                System.out.println(Arrays.toString(exception.getStackTrace()));
+                response.body("");
+                response.status(HttpStatus.INTERNAL_SERVER_ERROR_500);
+            }
+        });
+
+        new ItemController(this.isTest).createRoutes(server);
 
         server.awaitInitialization();
     }

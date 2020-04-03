@@ -1,4 +1,4 @@
-package ch.ibw.appl.tudu.server;
+package ch.ibw.appl.tudu.server.shared.infra;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;

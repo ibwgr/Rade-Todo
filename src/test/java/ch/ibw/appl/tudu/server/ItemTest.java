@@ -1,6 +1,7 @@
 package ch.ibw.appl.tudu.server;
 
 import ch.ibw.appl.tudu.server.item.model.Item;
+import ch.ibw.appl.tudu.server.shared.infra.JSONSerializer;
 import com.despegar.http.client.HttpResponse;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.eclipse.jetty.http.HttpStatus;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ItemTest extends FunctionalTest {
     @Test
@@ -50,14 +52,14 @@ public class ItemTest extends FunctionalTest {
 
     @Test
     public void getItemsByIdIsNotFound_IfItemUnexisting(){
-        HttpResponse httpResponse = this.executeGet("/items/2");
+        HttpResponse httpResponse = this.executeGet("/items/22");
 
         Assert.assertEquals(404, httpResponse.code());
     }
 
     @Test
     public void createUnexistingItemIsOK(){
-        HttpResponse httpResponse = this.executePost("/items", new Item(3L, "new Item"));
+        HttpResponse httpResponse = this.executePost("/items", new Item( "new Item"));
 
         Assert.assertEquals(HttpStatus.CREATED_201, httpResponse.code());
 
@@ -75,6 +77,28 @@ public class ItemTest extends FunctionalTest {
         Assert.assertEquals(HttpStatus.NOT_FOUND_404, httpResponse.code());
     }
 
-}
+    @Test
+    public void searchByDescriptionWithMatches(){
+        HttpResponse httpResponse = this.executeGet("/items?filter=description:füR");
 
+        Assert.assertEquals(HttpStatus.OK_200, httpResponse.code());
+
+        String body = new String(httpResponse.body());
+        List<Item> deserializedItems = new JSONSerializer().deserialize(body, new TypeReference<ArrayList<Item>>() {});
+
+        Assert.assertEquals(1, deserializedItems.size());
+    }
+
+    @Test
+    public void create_todo_validationFailed() {
+        Object item = new Item("");
+        HttpResponse response = executePost("/items", item);
+
+        assertEquals(HttpStatus.BAD_REQUEST_400, response.code());
+        assertEquals("application/json", response.headers().get("Content-Type").get(0));
+
+        String body = new String(response.body());
+        assertTrue(body.contains("message"));
+    }
+}
 
